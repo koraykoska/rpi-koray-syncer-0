@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  gitea:
+    image: gitea/gitea:1.21.3
+    environment:
+      - USER=git
+      - USER_UID=2002
+      - USER_GID=2002
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=postgres:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=gitea
+    restart: unless-stopped
+    volumes:
+      - /mnt/gitea/data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /home/git/.ssh/:/data/git/.ssh
+    ports:
+      - "3000:3000"
+      - "127.0.0.1:2222:22"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    user: root
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=gitea
+      - POSTGRES_DB=gitea
+    volumes:
+      - /mnt/gitea/postgres:/var/lib/postgresql/data
